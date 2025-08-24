@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Display</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(2, 1fr);
+      height: 100vh;
+      text-align: center;
+      background: url('https://static.vecteezy.com/system/resources/previews/001/849/553/non_2x/modern-gold-background-free-vector.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.7);
+    }
+
+    h2 {
+      color: cyan;
+      margin-bottom: 10px;
+    }
+
+    #date {
+      font-size: 1.2em;
+    }
+
+    #time {
+      font-size: 2em;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    #weather {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    #weather img {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        grid-template-rows: auto;
+        font-size: 0.9em;
+      }
+
+      section {
+        margin: 5px;
+        padding: 10px;
+      }
+
+      #time {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TIME SECTION -->
+  <section id="time-section" role="region" aria-label="Current Time">
+    <h2>Time</h2>
+    <div id="date"></div>
+    <div id="time"></div>
+  </section>
+
+  <!-- WEATHER SECTION -->
+  <section id="weather-section" role="region" aria-label="Current Weather">
+    <h2>Weather</h2>
+    <div id="weather">Loading weather...</div>
+  </section>
+
+  <!-- SCRIPTS -->
+  <script>
+    // TIME SCRIPT
+    function updateTime() {
+      const now = new Date();
+      const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      document.getElementById('date').textContent = now.toLocaleDateString(undefined, optionsDate);
+      document.getElementById('time').textContent = now.toLocaleTimeString(undefined, optionsTime);
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // WEATHER SCRIPT
+    const apiKey = '4c3486273a73f0164879dab448389e7d';
+    const city = 'Loveland'; // You can change this to any city
+
+    async function fetchWeather() {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`
+        );
+        const data = await response.json();
+
+        const temp = Math.round(data.main.temp);
+        const description = data.weather[0].description;
+        const icon = data.weather[0].icon;
+        const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+        document.getElementById('weather').innerHTML = `
+          <div>${city} – ${description}</div>
+          <div>🌡 ${temp}°F</div>
+          <img src="${iconUrl}" alt="${description}" />
+        `;
+      } catch (error) {
+        document.getElementById('weather').textContent = 'Unable to load weather data.';
+        console.error('Weather fetch error:', error);
+      }
+    }
+
+    fetchWeather();
+  </script>
+
+</body>
+</html>
